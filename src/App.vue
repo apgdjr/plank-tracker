@@ -1,4 +1,6 @@
-<template><Timer timerName="Timer 1" /> <br /></template>
+<template>
+  <Timer timerName="Timer 1" />
+</template>
 
 <script>
 import TimerVue from "./components/Timer.vue";

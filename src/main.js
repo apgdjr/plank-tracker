@@ -1,4 +1,15 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import Vue from "vue";
+import App from "./App.vue";
+import { BootstrapVue } from "bootstrap-vue";
+import VueCompositionApi from "@vue/composition-api";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue/dist/bootstrap-vue.css";
 
-createApp(App).mount('#app')
+Vue.config.productionTip = false;
+
+Vue.use(VueCompositionApi);
+Vue.use(BootstrapVue);
+
+new Vue({
+  render: (h) => h(App)
+}).$mount("#app");
