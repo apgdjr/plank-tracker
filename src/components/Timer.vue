@@ -1,11 +1,5 @@
 <template>
   <b-container>
-    <b-row class="pt-5">
-      <b-col class="d-flex justify-content-center"
-        ><h3>{{ queryTimerInHours }}</h3></b-col
-      >
-    </b-row>
-
     <b-row class="pt-4">
       <b-col class="d-flex justify-content-center">
         <b-button
@@ -16,6 +10,11 @@
           {{ queryTimerNextState }}
         </b-button>
       </b-col>
+
+      <b-col class="d-flex justify-content-center">
+        <h3>{{ queryTimerInHours }}</h3>
+      </b-col>
+
       <b-col class="d-flex justify-content-center">
         <b-button
           size="lg"
@@ -34,7 +33,8 @@
           variant="outline-success"
           v-on:click="pressedButtonAdd"
         >
-          Add {{ queryLapInHours }}
+          Add <br />
+          {{ queryLapInHours }}
         </b-button>
       </b-col>
     </b-row>
