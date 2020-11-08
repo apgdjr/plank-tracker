@@ -1,35 +1,53 @@
 <template>
-  <div class="here">
-    <h3>{{ queryTimerInHours }}</h3>
-    <br /><br /><br />
-
-    <button v-on:click="commandChangeTimerState">
-      {{ queryTimerNextState }}
-    </button>
-
-    <button v-on:click="commandResetTimer">Reset</button>
-
-    <br /><br /><br />
-    <button v-on:click="commandAddTimerRecord">Add</button>
-
-    <br /><br /><br />
-    <table id="records" class="table">
-      <tbody>
-        <tr>
-          <th>Date</th>
-          <th>Time</th>
-          <th>Action</th>
-        </tr>
-        <tr v-for="(value, index) in timerRecords" v-bind:key="index">
-          <td>{{ value.dateOfRecord }}</td>
-          <td>{{ value.timerInHours }}</td>
-          <td>
-            <button v-on:click="commandRemoveTimerRecord(index)">x</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <b-container>
+      
+      <b-row class="pt-5">
+        <b-col class="d-flex justify-content-center"><h3>{{ queryTimerInHours }}</h3></b-col>
+      </b-row>
+      
+      <b-row class="pt-4">
+        <b-col class="d-flex justify-content-center">
+          <b-button size='lg' variant='outline-primary' v-on:click="commandChangeTimerState">
+            {{ queryTimerNextState }}
+          </b-button>
+        </b-col>
+        <b-col class="d-flex justify-content-center">
+          <b-button size='lg'  variant='outline-secondary' v-on:click="commandResetTimer">
+            Reset
+          </b-button>
+        </b-col>
+      </b-row>
+      
+      <b-row class="pt-4">
+        <b-col class="d-flex justify-content-center">
+          <b-button size='lg' variant='outline-success' v-on:click="commandAddTimerRecord">
+            Add
+          </b-button>
+        </b-col>
+      </b-row>
+     
+      <b-row class="pt-5">
+        <b-col>
+          <table id="records" class="table">
+            <tbody>
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
+              </tr>
+              <tr v-for="(value, index) in timerRecords" v-bind:key="index">
+                <td>{{ value.dateOfRecord }}</td>
+                <td>{{ value.timerInHours }}</td>
+                <td class="d-flex justify-content-center">
+                  <b-button size='sm' variant='outline-danger' v-on:click="commandRemoveTimerRecord(index)">Remove</b-button>
+                </td>
+              </tr>
+            </tbody>
+            </table>
+        </b-col>
+      </b-row>
+    
+    </b-container>   
 </template>
 
 
@@ -39,7 +57,7 @@
 //TODO : View Timer. view KPI accumulated during the day.
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
-import { ref, computed } from "vue";
+import { ref, computed } from "@vue/composition-api";
 
 export default {
   name: "Timer",
@@ -131,13 +149,7 @@ export default {
 
 
 <style>
-.here {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #342c50;
-}
+
 
 #records {
   font-family: Arial, Helvetica, sans-serif;
