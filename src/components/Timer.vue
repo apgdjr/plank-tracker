@@ -1,53 +1,70 @@
 <template>
-    <b-container>
-      
-      <b-row class="pt-5">
-        <b-col class="d-flex justify-content-center"><h3>{{ queryTimerInHours }}</h3></b-col>
-      </b-row>
-      
-      <b-row class="pt-4">
-        <b-col class="d-flex justify-content-center">
-          <b-button size='lg' variant='outline-primary' v-on:click="commandChangeTimerState">
-            {{ queryTimerNextState }}
-          </b-button>
-        </b-col>
-        <b-col class="d-flex justify-content-center">
-          <b-button size='lg'  variant='outline-secondary' v-on:click="commandResetTimer">
-            Reset
-          </b-button>
-        </b-col>
-      </b-row>
-      
-      <b-row class="pt-4">
-        <b-col class="d-flex justify-content-center">
-          <b-button size='lg' variant='outline-success' v-on:click="commandAddTimerRecord">
-            Add
-          </b-button>
-        </b-col>
-      </b-row>
-     
-      <b-row class="pt-5">
-        <b-col>
-          <table id="records" class="table">
-            <tbody>
-              <tr>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Action</th>
-              </tr>
-              <tr v-for="(value, index) in timerRecords" v-bind:key="index">
-                <td>{{ value.dateOfRecord }}</td>
-                <td>{{ value.timerInHours }}</td>
-                <td class="d-flex justify-content-center">
-                  <b-button size='sm' variant='outline-danger' v-on:click="commandRemoveTimerRecord(index)">Remove</b-button>
-                </td>
-              </tr>
-            </tbody>
-            </table>
-        </b-col>
-      </b-row>
-    
-    </b-container>   
+  <b-container>
+    <b-row class="pt-5">
+      <b-col class="d-flex justify-content-center"
+        ><h3>{{ queryTimerInHours }}</h3></b-col
+      >
+    </b-row>
+
+    <b-row class="pt-4">
+      <b-col class="d-flex justify-content-center">
+        <b-button
+          size="lg"
+          variant="outline-primary"
+          v-on:click="commandChangeTimerState"
+        >
+          {{ queryTimerNextState }}
+        </b-button>
+      </b-col>
+      <b-col class="d-flex justify-content-center">
+        <b-button
+          size="lg"
+          variant="outline-secondary"
+          v-on:click="commandResetTimer"
+        >
+          Reset
+        </b-button>
+      </b-col>
+    </b-row>
+
+    <b-row class="pt-4">
+      <b-col class="d-flex justify-content-center">
+        <b-button
+          size="lg"
+          variant="outline-success"
+          v-on:click="pressedButtonAdd"
+        >
+          Add {{ queryLapInHours }}
+        </b-button>
+      </b-col>
+    </b-row>
+
+    <b-row class="pt-5">
+      <b-col>
+        <table id="records" class="table">
+          <tbody>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Action</th>
+            </tr>
+            <tr v-for="(value, index) in timerRecords" v-bind:key="index">
+              <td>{{ value.dateOfRecord }}</td>
+              <td>{{ value.timerInHours }}</td>
+              <td class="d-flex justify-content-center">
+                <b-button
+                  size="sm"
+                  variant="outline-danger"
+                  v-on:click="commandRemoveTimerRecord(index)"
+                  >Remove</b-button
+                >
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 
@@ -70,15 +87,14 @@ export default {
 
   setup() {
     //the number of seconds
-    let timerSeconds = ref(0);
+    let timerSeconds = ref({ current: 0, previous: 0, lap: 0 });
 
     let timerRecords = ref([]);
-
     //the state of the timer: inProgress, stopped
     let timerState = ref("stopped");
 
     const queryTimerInHours = computed(() => {
-      var secs = timerSeconds.value;
+      var secs = timerSeconds.value.current;
       var hours = Math.floor(secs / (60 * 60));
       if (hours < 10) hours = `0${hours}`;
 
@@ -92,6 +108,22 @@ export default {
       return `${hours}:${minutes}:${seconds}`;
     });
 
+    const queryLapInHours = computed(() => {
+      var secs = timerSeconds.value.current - timerSeconds.value.previous;
+      var hours = Math.floor(secs / (60 * 60));
+      if (hours < 10) hours = `0${hours}`;
+
+      var divisor_for_minutes = secs % (60 * 60);
+      var minutes = Math.floor(divisor_for_minutes / 60);
+      if (minutes < 10) minutes = `0${minutes}`;
+
+      var divisor_for_seconds = divisor_for_minutes % 60;
+      var seconds = Math.ceil(divisor_for_seconds);
+      if (seconds < 10) seconds = `0${seconds}`;
+
+      return `${hours}:${minutes}:${seconds}`;
+    });
+
     let queryTimerNextState = computed(() => {
       if (timerState.value === "inProgress") return "Stop";
       if (timerState.value === "stopped") return "Start";
@@ -99,19 +131,32 @@ export default {
 
     //changes the state of the timer. switching from start/stop.
     function commandChangeTimerState() {
-      if (timerState.value === "stopped") timerState.value = "inProgress";
-      else timerState.value = "stopped";
-
-      commandTriggerTimer();
+      if (timerState.value === "stopped") {
+        timerState.value = "inProgress";
+        commandNewLap();
+        commandTriggerTimer();
+      } else {
+        timerState.value = "stopped";
+      }
     }
 
     function commandResetTimer() {
-      timerSeconds.value = 0;
+      timerSeconds.value.current = 0;
+      timerSeconds.value.previous = 0;
+    }
+
+    function commandNewLap() {
+      timerSeconds.value.previous = timerSeconds.value.current;
+    }
+
+    function pressedButtonAdd() {
+      commandAddTimerRecord();
+      commandNewLap();
     }
 
     function commandAddTimerRecord() {
       let today = new Date().toISOString().slice(0, 10);
-      let value = queryTimerInHours.value;
+      let value = queryLapInHours.value;
 
       var record = {
         timerInHours: value,
@@ -128,19 +173,25 @@ export default {
     function commandTriggerTimer() {
       if (timerState.value === "inProgress") {
         setTimeout(() => {
-          timerSeconds.value++;
-          commandTriggerTimer();
+          //before adding to timer make sure that it is still in progress
+          if (timerState.value === "inProgress") {
+            timerSeconds.value.current++;
+            commandTriggerTimer();
+          }
         }, 1000);
       }
     }
 
     return {
       queryTimerInHours,
+      queryLapInHours,
       queryTimerNextState,
+
       commandChangeTimerState,
       commandResetTimer,
       commandRemoveTimerRecord,
-      commandAddTimerRecord,
+      pressedButtonAdd,
+
       timerRecords,
     };
   },
@@ -149,8 +200,6 @@ export default {
 
 
 <style>
-
-
 #records {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
