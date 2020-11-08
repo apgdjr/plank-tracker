@@ -1,49 +1,41 @@
 <template>
   <div class="here">
-    
-    <h1>
-      {{ queryTimerInHours }}
-    </h1>
+    <h3>{{ queryTimerInHours }}</h3>
     <br /><br /><br />
-    
-    
-    
+
     <button v-on:click="commandChangeTimerState">
       {{ queryTimerNextState }}
     </button>
-    
- 
-    
-    <button v-on:click="commandResetTimer">
-      Reset
-    </button>
-    
-    
+
+    <button v-on:click="commandResetTimer">Reset</button>
+
     <br /><br /><br />
-    <button v-on:click="commandAddTimerRecord">Add</button>  
-    
+    <button v-on:click="commandAddTimerRecord">Add</button>
+
     <br /><br /><br />
     <table id="records" class="table">
-      <tbody>   
+      <tbody>
         <tr>
-          <th>Date</th> <th>Time</th> <th>Action</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Action</th>
         </tr>
-        <tr v-for="(value,index) in timerRecords" v-bind:key="index">
-          <td> {{ value.dateOfRecord }} </td> 
-          <td> {{ value.timerInHours }} </td> 
-          <td> <button v-on:click="commandRemoveTimerRecord(index)">x</button>  </td>
+        <tr v-for="(value, index) in timerRecords" v-bind:key="index">
+          <td>{{ value.dateOfRecord }}</td>
+          <td>{{ value.timerInHours }}</td>
+          <td>
+            <button v-on:click="commandRemoveTimerRecord(index)">x</button>
+          </td>
         </tr>
       </tbody>
     </table>
-
-    
   </div>
 </template>
 
 
 <script>
-//TODO : Computer Timer. laps. when i press start I register the amount of seconds so that when i stop the timer I know how many seconds the lap had. mkae sure if resset to negative value is added. 
-//TODO : Computer Timer. type of timer (plank,  pushups, running). when i press start I register the amount of seconds so that when i stop the timer I know how many seconds the lap had. mkae sure if resset to negative value is added. 
+//TODO : Computer Timer. laps. when i press start I register the amount of seconds so that when i stop the timer I know how many seconds the lap had. mkae sure if resset to negative value is added.
+//TODO : Computer Timer. type of timer (plank,  pushups, running). when i press start I register the amount of seconds so that when i stop the timer I know how many seconds the lap had. mkae sure if resset to negative value is added.
 //TODO : View Timer. view KPI accumulated during the day.
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
@@ -62,7 +54,7 @@ export default {
     //the number of seconds
     let timerSeconds = ref(0);
 
-    let timerRecords = ref ([]);
+    let timerRecords = ref([]);
 
     //the state of the timer: inProgress, stopped
     let timerState = ref("stopped");
@@ -100,26 +92,19 @@ export default {
     }
 
     function commandAddTimerRecord() {
-     
-     let today = new Date().toISOString().slice(0, 10)
-     let value = queryTimerInHours.value
+      let today = new Date().toISOString().slice(0, 10);
+      let value = queryTimerInHours.value;
 
-    
-     var record = {
-          timerInHours : value,
-          dateOfRecord : today
-
-
+      var record = {
+        timerInHours: value,
+        dateOfRecord: today,
       };
 
-      timerRecords.value.push(record)
-
-
+      timerRecords.value.push(record);
     }
 
-    function commandRemoveTimerRecord(index){
-      timerRecords.value.splice(index, 1)
-
+    function commandRemoveTimerRecord(index) {
+      timerRecords.value.splice(index, 1);
     }
 
     function commandTriggerTimer() {
@@ -138,7 +123,7 @@ export default {
       commandResetTimer,
       commandRemoveTimerRecord,
       commandAddTimerRecord,
-      timerRecords
+      timerRecords,
     };
   },
 };
@@ -160,14 +145,19 @@ export default {
   width: 100%;
 }
 
-#records td, #customers th {
+#records td,
+#customers th {
   border: 1px solid #ddd;
   padding: 8px;
 }
 
-#records tr:nth-child(even){background-color: #f2f2f2;}
+#records tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
 
-#records tr:hover {background-color: #ddd;}
+#records tr:hover {
+  background-color: #ddd;
+}
 
 #records th {
   padding-top: 12px;
@@ -176,6 +166,4 @@ export default {
   background-color: #4CAF50;
   color: white;
 }
-
-
 </style>
