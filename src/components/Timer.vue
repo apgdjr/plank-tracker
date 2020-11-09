@@ -90,7 +90,6 @@ export default {
   mounted() {},
 
   setup() {
-    const data = ref(null);
     const loading = ref(true);
     const error = ref(null);
 
