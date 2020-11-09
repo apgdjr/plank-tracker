@@ -41,7 +41,7 @@
 
     <b-row class="pt-5">
       <b-col>
-        <table id="records" class="table">
+        <table id="records" class="table" v-if="timerRecords.length > 0">
           <tbody>
             <tr>
               <th>Date</th>
@@ -62,6 +62,9 @@
             </tr>
           </tbody>
         </table>
+
+        <p v-if="loading">Still loading..</p>
+        <p v-if="error">Error Loading</p>
       </b-col>
     </b-row>
   </b-container>
@@ -74,7 +77,8 @@
 //TODO : View Timer. view KPI accumulated during the day.
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
-import { ref, computed } from "@vue/composition-api";
+import { ref, computed, onMounted } from "@vue/composition-api";
+import axios from "axios";
 
 export default {
   name: "Timer",
@@ -86,6 +90,29 @@ export default {
   mounted() {},
 
   setup() {
+    const data = ref(null);
+    const loading = ref(true);
+    const error = ref(null);
+
+    function fetchData() {
+      axios
+        .get(
+          "https://cloud-run-helloworld-nxfajvnyhq-ew.a.run.app/plankRecords"
+        )
+        .then((response) => {
+          timerRecords.value = response.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          error.value = err;
+        })
+        .finally(() => (loading.value = false));
+    }
+
+    onMounted(() => {
+      fetchData();
+    });
+
     //the number of seconds
     let timerSeconds = ref({ current: 0, previous: 0, lap: 0 });
 
@@ -193,6 +220,8 @@ export default {
       pressedButtonAdd,
 
       timerRecords,
+      loading,
+      error,
     };
   },
 };
