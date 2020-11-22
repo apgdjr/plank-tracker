@@ -49,8 +49,8 @@
               <th>Action</th>
             </tr>
             <tr v-for="(value, index) in timerRecords" v-bind:key="index">
-              <td>{{ value.dateOfRecord }}</td>
-              <td>{{ value.timerInHours }}</td>
+              <td>{{ value.data.dateOfRecord }}</td>
+              <td>{{ value.data.timerInHours }}</td>
               <td class="d-flex justify-content-center">
                 <b-button
                   size="sm"
@@ -103,8 +103,8 @@ export default {
 
         let records = [];
         // loop over values
-        for (let value of Object.values(data)) {
-          records.push(value);
+        for (let key of Object.keys(data)) {
+          records.push({id: key, data: data[key]});
           loading.value = false;
         }
         timerRecords.value = records;
@@ -187,27 +187,39 @@ export default {
       let today = new Date().toISOString().slice(0, 10);
       let value = queryLapInHours.value;
 
-      var record = {
-        timerInHours: value,
-        dateOfRecord: today,
-      };
-
-      timerRecords.value.push(record);
-
       var newPlankKey = fire
         .database()
         .ref()
         .child("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks")
         .push().key;
+      
+      var record = {
+        id: newPlankKey,
+        data: {
+          timerInHours: value,
+          dateOfRecord: today,
+        }
+      };
 
+   
+      
       fire
         .database()
-        .ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks/" + newPlankKey)
-        .set(record);
+        .ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks/" + record.id)
+        .set(record.data);
+
+      timerRecords.value.push(record);      
+
+      
     }
 
     function commandRemoveTimerRecord(index) {
+      
+      let object = timerRecords.value[index];
+      //console.log(index, object.id)
+      fire.database().ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks/"+object.id).remove();
       timerRecords.value.splice(index, 1);
+
     }
 
     function commandTriggerTimer() {
