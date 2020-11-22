@@ -78,7 +78,7 @@
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
 import { ref, computed, onMounted } from "@vue/composition-api";
-import axios from "axios";
+import fire from "../firebase.js";
 
 export default {
   name: "Timer",
@@ -93,19 +93,22 @@ export default {
     const loading = ref(true);
     const error = ref(null);
 
-    function fetchData() {
-      axios
-        .get(
-          "https://cloud-run-helloworld-nxfajvnyhq-ew.a.run.app/plankRecords"
-        )
-        .then((response) => {
-          timerRecords.value = response.data;
-        })
-        .catch((err) => {
-          console.log(err);
-          error.value = err;
-        })
-        .finally(() => (loading.value = false));
+    async function fetchData() {
+      const itemsRef = fire
+        .database()
+        .ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks");
+
+      itemsRef.once("value", (snapshot) => {
+        let data = snapshot.val();
+
+        let records = [];
+        // loop over values
+        for (let value of Object.values(data)) {
+          records.push(value);
+          loading.value = false;
+        }
+        timerRecords.value = records;
+      });
     }
 
     onMounted(() => {
@@ -190,6 +193,17 @@ export default {
       };
 
       timerRecords.value.push(record);
+
+      var newPlankKey = fire
+        .database()
+        .ref()
+        .child("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks")
+        .push().key;
+
+      fire
+        .database()
+        .ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks/" + newPlankKey)
+        .set(record);
     }
 
     function commandRemoveTimerRecord(index) {
