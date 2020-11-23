@@ -15,20 +15,26 @@ const firebaseConfig = {
 
 var fire = firebase.initializeApp(firebaseConfig);
 
-const userID = store.get("database/userID");
+export function loadPlank() {
+  const userID = store.get("database/userID");
+  const plankCollection = fire.database().ref("Users/" + userID + "/planks");
 
-const plankCollection = fire.database().ref("Users/" + userID + "/planks");
+  plankCollection.on("value", (snapshot) => {
+    let planksArray = [];
 
-plankCollection.on("value", (snapshot) => {
-  let planksArray = [];
-
-  snapshot.forEach((doc) => {
-    let key = doc.key;
-    let plank = doc.val();
-    planksArray.push({ id: key, data: plank });
+    snapshot.forEach((doc) => {
+      let key = doc.key;
+      let plank = doc.val();
+      planksArray.push({ id: key, data: plank });
+    });
+    store.set("database/planks", planksArray);
   });
-  store.set("database/planks", planksArray);
-});
+}
+
+loadPlank();
 
 // export utils/refs
-export default fire;
+export default {
+  fire,
+  loadPlank
+};
