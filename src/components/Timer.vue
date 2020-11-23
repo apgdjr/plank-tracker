@@ -78,7 +78,7 @@
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
 import { ref, computed, onMounted } from "@vue/composition-api";
-import { get } from "vuex-pathify";
+
 import fire from "../firebase.js";
 
 export default {

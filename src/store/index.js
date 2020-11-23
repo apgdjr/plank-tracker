@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import pathify, { make } from "vuex-pathify";
+import pathify from "vuex-pathify";
 import database from "./modules/database.js";
 
 Vue.use(Vuex);
