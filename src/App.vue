@@ -1,15 +1,20 @@
 <template>
-  <Timer />
+  <div>
+    <Timer />
+    <Table />
+  </div>
 </template>
 
 <script>
 //import TimerVue from "./components/Timer.vue";
-import Timer from "./components/Timer.vue";
+import plankTable from "./components/plankTable.vue";
+import plankTimer from "./components/plankTimer.vue";
 
 export default {
   name: "App",
   components: {
-    Timer: Timer,
+    Timer: plankTimer,
+    Table: plankTable,
   },
 };
 </script>

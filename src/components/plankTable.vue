@@ -4,37 +4,11 @@
       <b-col class="d-flex justify-content-center">
         <b-button
           size="lg"
-          variant="outline-primary"
-          v-on:click="commandChangeTimerState"
-        >
-          {{ queryTimerNextState }}
-        </b-button>
-      </b-col>
-
-      <b-col class="d-flex justify-content-center">
-        <h3>{{ queryTimerInHours }}</h3>
-      </b-col>
-
-      <b-col class="d-flex justify-content-center">
-        <b-button
-          size="lg"
-          variant="outline-secondary"
-          v-on:click="commandResetTimer"
-        >
-          Reset
-        </b-button>
-      </b-col>
-    </b-row>
-
-    <b-row class="pt-4">
-      <b-col class="d-flex justify-content-center">
-        <b-button
-          size="lg"
           variant="outline-success"
           v-on:click="pressedButtonAdd"
         >
           Add <br />
-          {{ queryLapInHours }}
+          {{ queryTimerInHours }}
         </b-button>
       </b-col>
     </b-row>
@@ -92,82 +66,19 @@ export default {
 
     const timerRecords = computed(() => store.get("database.planks"));
     const userID = computed(() => store.get("database.userID"));
+    const queryTimerInHours = computed(() => store.get("database.timer"));
 
     onMounted(() => {
       loading.value = false;
     });
 
-    //the number of seconds
-    let timerSeconds = ref({ current: 0, previous: 0, lap: 0 });
-
-    //let timerRecords = ref([]);
-    //the state of the timer: inProgress, stopped
-    let timerState = ref("stopped");
-
-    const queryTimerInHours = computed(() => {
-      var secs = timerSeconds.value.current;
-      var hours = Math.floor(secs / (60 * 60));
-      if (hours < 10) hours = `0${hours}`;
-
-      var divisor_for_minutes = secs % (60 * 60);
-      var minutes = Math.floor(divisor_for_minutes / 60);
-      if (minutes < 10) minutes = `0${minutes}`;
-
-      var divisor_for_seconds = divisor_for_minutes % 60;
-      var seconds = Math.ceil(divisor_for_seconds);
-      if (seconds < 10) seconds = `0${seconds}`;
-      return `${hours}:${minutes}:${seconds}`;
-    });
-
-    const queryLapInHours = computed(() => {
-      var secs = timerSeconds.value.current - timerSeconds.value.previous;
-      var hours = Math.floor(secs / (60 * 60));
-      if (hours < 10) hours = `0${hours}`;
-
-      var divisor_for_minutes = secs % (60 * 60);
-      var minutes = Math.floor(divisor_for_minutes / 60);
-      if (minutes < 10) minutes = `0${minutes}`;
-
-      var divisor_for_seconds = divisor_for_minutes % 60;
-      var seconds = Math.ceil(divisor_for_seconds);
-      if (seconds < 10) seconds = `0${seconds}`;
-
-      return `${hours}:${minutes}:${seconds}`;
-    });
-
-    let queryTimerNextState = computed(() => {
-      if (timerState.value === "inProgress") return "Stop";
-      if (timerState.value === "stopped") return "Start";
-    });
-
-    //changes the state of the timer. switching from start/stop.
-    function commandChangeTimerState() {
-      if (timerState.value === "stopped") {
-        timerState.value = "inProgress";
-        commandNewLap();
-        commandTriggerTimer();
-      } else {
-        timerState.value = "stopped";
-      }
-    }
-
-    function commandResetTimer() {
-      timerSeconds.value.current = 0;
-      timerSeconds.value.previous = 0;
-    }
-
-    function commandNewLap() {
-      timerSeconds.value.previous = timerSeconds.value.current;
-    }
-
     function pressedButtonAdd() {
       commandAddTimerRecord();
-      commandNewLap();
     }
 
     function commandAddTimerRecord() {
       let today = new Date().toISOString().slice(0, 10);
-      let value = queryLapInHours.value;
+      let value = store.get("database.timer");
 
       var newPlankKey = fire
         .database()
@@ -198,25 +109,9 @@ export default {
         .remove();
     }
 
-    function commandTriggerTimer() {
-      if (timerState.value === "inProgress") {
-        setTimeout(() => {
-          //before adding to timer make sure that it is still in progress
-          if (timerState.value === "inProgress") {
-            timerSeconds.value.current++;
-            commandTriggerTimer();
-          }
-        }, 1000);
-      }
-    }
-
     return {
       queryTimerInHours,
-      queryLapInHours,
-      queryTimerNextState,
 
-      commandChangeTimerState,
-      commandResetTimer,
       commandRemoveTimerRecord,
       pressedButtonAdd,
 
