@@ -21,7 +21,7 @@ export default {
     let userID = ref("a");
 
     watch(userID, (newValue, oldValue) => {
-      console.log("The new value is value is: " + userID.value);
+      console.log("The new value is value is: " + newValue + oldValue);
       store.set("database/userID", userID.value);
       loadPlank();
     });
