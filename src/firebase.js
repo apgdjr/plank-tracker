@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import store from "./store";
 
 // firebase init
 const firebaseConfig = {
@@ -13,6 +14,21 @@ const firebaseConfig = {
 };
 
 var fire = firebase.initializeApp(firebaseConfig);
+
+const userID = store.get("database/userID");
+
+const plankCollection = fire.database().ref("Users/" + userID + "/planks");
+
+plankCollection.on("value", (snapshot) => {
+  let planksArray = [];
+
+  snapshot.forEach((doc) => {
+    let key = doc.key;
+    let plank = doc.val();
+    planksArray.push({ id: key, data: plank });
+  });
+  store.set("database/planks", planksArray);
+});
 
 // export utils/refs
 export default fire;

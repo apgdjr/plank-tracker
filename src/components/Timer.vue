@@ -78,47 +78,29 @@
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
 import { ref, computed, onMounted } from "@vue/composition-api";
+import { get } from "vuex-pathify";
 import fire from "../firebase.js";
 
 export default {
   name: "Timer",
 
-  props: {
-    timerName: String,
-  },
+  setup(props, context) {
+    const store = context.root.$store;
 
-  mounted() {},
-
-  setup() {
     const loading = ref(true);
     const error = ref(null);
 
-    async function fetchData() {
-      const itemsRef = fire
-        .database()
-        .ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks");
-
-      itemsRef.once("value", (snapshot) => {
-        let data = snapshot.val();
-
-        let records = [];
-        // loop over values
-        for (let key of Object.keys(data)) {
-          records.push({id: key, data: data[key]});
-          loading.value = false;
-        }
-        timerRecords.value = records;
-      });
-    }
+    const timerRecords = computed(() => store.get("database.planks"));
+    const userID = computed(() => store.get("database.userID"));
 
     onMounted(() => {
-      fetchData();
+      loading.value = false;
     });
 
     //the number of seconds
     let timerSeconds = ref({ current: 0, previous: 0, lap: 0 });
 
-    let timerRecords = ref([]);
+    //let timerRecords = ref([]);
     //the state of the timer: inProgress, stopped
     let timerState = ref("stopped");
 
@@ -190,36 +172,30 @@ export default {
       var newPlankKey = fire
         .database()
         .ref()
-        .child("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks")
+        .child("Users/" + userID.value + "/planks")
         .push().key;
-      
+
       var record = {
         id: newPlankKey,
         data: {
           timerInHours: value,
           dateOfRecord: today,
-        }
+        },
       };
 
-   
-      
       fire
         .database()
-        .ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks/" + record.id)
+        .ref("Users/" + userID.value + "/planks/" + record.id)
         .set(record.data);
-
-      timerRecords.value.push(record);      
-
-      
     }
 
     function commandRemoveTimerRecord(index) {
-      
       let object = timerRecords.value[index];
       //console.log(index, object.id)
-      fire.database().ref("Users/991a602c-b853-4a86-83f8-4627721f1b6f/planks/"+object.id).remove();
-      timerRecords.value.splice(index, 1);
-
+      fire
+        .database()
+        .ref("Users/" + userID.value + "/planks/" + object.id)
+        .remove();
     }
 
     function commandTriggerTimer() {

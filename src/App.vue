@@ -1,14 +1,15 @@
 <template>
-  <Timer timerName="Timer 1" />
+  <Timer />
 </template>
 
 <script>
-import TimerVue from "./components/Timer.vue";
+//import TimerVue from "./components/Timer.vue";
+import Timer from "./components/Timer.vue";
 
 export default {
   name: "App",
   components: {
-    Timer: TimerVue,
+    Timer: Timer,
   },
 };
 </script>
