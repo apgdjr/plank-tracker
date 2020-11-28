@@ -2,16 +2,14 @@
   <b-container>
     <b-row class="pt-4">
       <b-col class="d-flex justify-content-center">
-       <div v-if="!checkIsAddDisabled">  
         <b-button
           size="lg"
           variant="outline-success"
           v-on:click="pressedButtonAdd"
-         
+          :disabled="checkIsAddDisabled"
         >
-          Add         
+          Add
         </b-button>
-      </div>
       </b-col>
     </b-row>
 
@@ -54,7 +52,7 @@
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
 import { ref, computed, onMounted } from "@vue/composition-api";
-import {firedb} from "../firebase.js";
+import { firedb } from "../firebase.js";
 
 export default {
   name: "plankTable",
@@ -67,17 +65,17 @@ export default {
 
     const counterRecords = computed(() => store.get("database.planks"));
     const userID = computed(() => store.get("database.userID"));
-    const queryCounterInHours = computed(() => store.get("counter.counterInHours"));
-    const checkIsAddDisabled = computed(
-    () => {
-      if ((store.get("counter.state") === 'stopped') & ((store.get("counter.counter") > 0))){
-        
-        return false
-      }
-      else 
-        return true
-    }
-    )
+    const queryCounterInHours = computed(() =>
+      store.get("counter.counterInHours")
+    );
+    const checkIsAddDisabled = computed(() => {
+      if (
+        (store.get("counter.state") === "stopped") &
+        (store.get("counter.counter") > 0)
+      ) {
+        return false;
+      } else return true;
+    });
     onMounted(() => {
       loading.value = false;
     });
@@ -91,8 +89,11 @@ export default {
       let today = new Date().toISOString().slice(0, 10);
       let value = queryCounterInHours.value;
       console.log("here", firedb);
- 
-      var newPlankKey = firedb.ref().child("Users/" + userID.value + "/planks").push().key;
+
+      var newPlankKey = firedb
+        .ref()
+        .child("Users/" + userID.value + "/planks")
+        .push().key;
 
       console.log("here 2", newPlankKey);
 
@@ -104,7 +105,9 @@ export default {
         },
       };
 
-      firedb.ref("Users/" + userID.value + "/planks/" + record.id).set(record.data);
+      firedb
+        .ref("Users/" + userID.value + "/planks/" + record.id)
+        .set(record.data);
     }
 
     function commandRemoveCounterRecord(index) {
