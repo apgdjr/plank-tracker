@@ -18,7 +18,7 @@ export default {
 
   setup(props, context) {
     const store = context.root.$store;
-    let userID = ref("a");
+    let userID = ref("");
 
     watch(userID, (newValue, oldValue) => {
       console.log("The new value is value is: " + newValue + oldValue);

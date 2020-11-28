@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Timer />
+    <Counter />
     <Table />
     <User />
   </div>
@@ -10,13 +10,13 @@
 //import TimerVue from "./components/Timer.vue";
 import plankUser from "./components/plankUser.vue";
 import plankTable from "./components/plankTable.vue";
-import plankTimer from "./components/plankTimer.vue";
+import plankCounter from "./components/plankCounter.vue";
 
 export default {
   name: "App",
   components: {
     User: plankUser,
-    Timer: plankTimer,
+    Counter: plankCounter,
     Table: plankTable,
   },
 };

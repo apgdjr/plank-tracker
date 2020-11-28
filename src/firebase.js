@@ -1,4 +1,4 @@
-import firebase from "firebase";
+import firebase from 'firebase';
 import store from "./store";
 
 // firebase init
@@ -13,11 +13,16 @@ const firebaseConfig = {
   measurementId: "G-DFBER8H5KS"
 };
 
-var fire = firebase.initializeApp(firebaseConfig);
+
+
+
+const fire = firebase.initializeApp(firebaseConfig);
+export const firedb = fire.database();
+
 
 export function loadPlank() {
   const userID = store.get("database/userID");
-  const plankCollection = fire.database().ref("Users/" + userID + "/planks");
+  const plankCollection = firedb.ref("Users/" + userID + "/planks");
 
   plankCollection.on("value", (snapshot) => {
     let planksArray = [];
@@ -32,9 +37,4 @@ export function loadPlank() {
 }
 
 loadPlank();
-
-// export utils/refs
-export default {
-  fire,
-  loadPlank
-};
+ 

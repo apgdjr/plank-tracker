@@ -2,34 +2,36 @@
   <b-container>
     <b-row class="pt-4">
       <b-col class="d-flex justify-content-center">
+       <div v-if="!checkIsAddDisabled">  
         <b-button
           size="lg"
           variant="outline-success"
           v-on:click="pressedButtonAdd"
+         
         >
-          Add <br />
-          {{ queryTimerInHours }}
+          Add         
         </b-button>
+      </div>
       </b-col>
     </b-row>
 
     <b-row class="pt-5">
       <b-col>
-        <table id="records" class="table" v-if="timerRecords.length > 0">
+        <table id="records" class="table" v-if="counterRecords.length > 0">
           <tbody>
             <tr>
               <th>Date</th>
               <th>Time</th>
               <th>Action</th>
             </tr>
-            <tr v-for="(value, index) in timerRecords" v-bind:key="index">
+            <tr v-for="(value, index) in counterRecords" v-bind:key="index">
               <td>{{ value.data.dateOfRecord }}</td>
               <td>{{ value.data.timerInHours }}</td>
               <td class="d-flex justify-content-center">
                 <b-button
                   size="sm"
                   variant="outline-danger"
-                  v-on:click="commandRemoveTimerRecord(index)"
+                  v-on:click="commandRemoveCounterRecord(index)"
                   >Remove</b-button
                 >
               </td>
@@ -52,11 +54,10 @@
 //Todo : Storing Record. ass type of record. add to object Records who produced the record.also expand to get timestamp with hours and minute. nto only day
 
 import { ref, computed, onMounted } from "@vue/composition-api";
-
-import fire from "../firebase.js";
+import {firedb} from "../firebase.js";
 
 export default {
-  name: "Timer",
+  name: "plankTable",
 
   setup(props, context) {
     const store = context.root.$store;
@@ -64,29 +65,38 @@ export default {
     const loading = ref(true);
     const error = ref(null);
 
-    const timerRecords = computed(() => store.get("database.planks"));
+    const counterRecords = computed(() => store.get("database.planks"));
     const userID = computed(() => store.get("database.userID"));
-    const queryTimerInHours = computed(() => store.get("database.timer"));
-
+    const queryCounterInHours = computed(() => store.get("counter.counterInHours"));
+    const checkIsAddDisabled = computed(
+    () => {
+      if ((store.get("counter.state") === 'stopped') & ((store.get("counter.counter") > 0))){
+        
+        return false
+      }
+      else 
+        return true
+    }
+    )
     onMounted(() => {
       loading.value = false;
     });
 
     function pressedButtonAdd() {
-      commandAddTimerRecord();
+      commandAddCounterRecord();
+      store.set("counter/counter", 0);
     }
 
-    function commandAddTimerRecord() {
+    function commandAddCounterRecord() {
       let today = new Date().toISOString().slice(0, 10);
-      let value = store.get("database.timer");
+      let value = queryCounterInHours.value;
+      console.log("here", firedb);
+ 
+      var newPlankKey = firedb.ref().child("Users/" + userID.value + "/planks").push().key;
 
-      var newPlankKey = fire
-        .database()
-        .ref()
-        .child("Users/" + userID.value + "/planks")
-        .push().key;
+      console.log("here 2", newPlankKey);
 
-      var record = {
+      let record = {
         id: newPlankKey,
         data: {
           timerInHours: value,
@@ -94,28 +104,22 @@ export default {
         },
       };
 
-      fire
-        .database()
-        .ref("Users/" + userID.value + "/planks/" + record.id)
-        .set(record.data);
+      firedb.ref("Users/" + userID.value + "/planks/" + record.id).set(record.data);
     }
 
-    function commandRemoveTimerRecord(index) {
-      let object = timerRecords.value[index];
+    function commandRemoveCounterRecord(index) {
+      let object = counterRecords.value[index];
       //console.log(index, object.id)
-      fire
-        .database()
-        .ref("Users/" + userID.value + "/planks/" + object.id)
-        .remove();
+      firedb.ref("Users/" + userID.value + "/planks/" + object.id).remove();
     }
 
     return {
-      queryTimerInHours,
-
-      commandRemoveTimerRecord,
+      queryCounterInHours,
+      commandRemoveCounterRecord,
       pressedButtonAdd,
-
-      timerRecords,
+      userID,
+      checkIsAddDisabled,
+      counterRecords,
       loading,
       error,
     };
